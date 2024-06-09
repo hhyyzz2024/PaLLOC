@@ -17,7 +17,7 @@ public:
 #else
     pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator);
 #endif
-    virtual ~isolate_pair_allocator() {}
+    virtual ~pairwise_allocator() {}
     virtual void reset_obj_allocation_descriptor(const int& obj_id);
     virtual void discriminating();
     virtual void allocating();

@@ -1,0 +1,6 @@
+[submodule "third_party/intel-cmt-cat"]
+	path = third_party/intel-cmt-cat
+	url = https://github.com/intel/intel-cmt-cat
+[submodule "third_party/pcm"]
+	path = third_party/pcm
+	url = https://github.com/intel/pcm

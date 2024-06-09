@@ -236,9 +236,9 @@ system::system(int argc, char **argv)
 
 	if(allocator_on) {
 #ifdef TEST
-		m_allocator = new isolate_pair_allocator(objs, m_mode, m_tool_backend, m_monitor, m_discriminator, exp_data);
+		m_allocator = new pairwise_allocator(objs, m_mode, m_tool_backend, m_monitor, m_discriminator, exp_data);
 #else
-		m_allocator = new isolate_pair_allocator(objs, m_mode, m_tool_backend, m_monitor, m_discriminator);
+		m_allocator = new pairwise_allocator(objs, m_mode, m_tool_backend, m_monitor, m_discriminator);
 #endif
 	}
 

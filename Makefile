@@ -2,7 +2,7 @@ CXX = g++
 RM = rm -rf
 CXXFLAGS = -std=c++14
 
-PROJCT_DIR = ${CURDIR}/
+PROJCT_DIR = $(shell pwd)
 SRC_DIR = ./src
 INC_DIR = ./inc
 OBJ_DIR = ./obj
@@ -15,8 +15,6 @@ PCM_INC_DIR = $(PROJCT_DIR)/third_party/pcm/src
 RDT_LIB_DIR = $(PROJCT_DIR)/third_party/intel-cmt-cat/lib
 RDT_INC_DIR = $(PROJCT_DIR)/third_party/intel-cmt-cat/lib
 
-#CXXFLAGS += -I$(PCM_INC_DIR)
-#LDFLAGS = -lrt -lpthread -larmadillo -L$(PCM_LIB_DIR) -lpcm
 
 CXXFLAGS += -I$(RDT_INC_DIR) -I$(PCM_INC_DIR)
 LDFLAGS = -lrt -lpthread -lnuma -larmadillo -L$(RDT_LIB_DIR) -lpqos -L$(PCM_LIB_DIR) -lpcm -llikwid

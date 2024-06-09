@@ -93,7 +93,7 @@ pcm_pqos_backend::~pcm_pqos_backend()
 
 	pqos_alloc_reset_config(&cfg);
 
-	pqos_alloc_reset(cfg.l3_cdp, cfg.l2_cdp, cfg.mba);;
+	pqos_alloc_reset(cfg.l3_cdp, cfg.l2_cdp, cfg.mba);
 
 	int ret = pqos_fini();
     if (ret != PQOS_RETVAL_OK)

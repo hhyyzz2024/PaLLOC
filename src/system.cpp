@@ -418,7 +418,7 @@ void system::show_usage()
 	printf("Usage: ./PaLLOC -P 100 -m 0 -c 1,2,3,4\n");
 	printf("Options:\n");
 	printf("	-a, --allocator=bool			Whether to turn on the resource allocator (default true means open).\n");
-	printf("	-P, --period=int				The sampling period (ms, default 100ms) of monitor and resource allocator.\n");
+	printf("	-P, --period=int				The sampling period (ms, default 100ms) of monitor.\n");
 	printf("	-m, --mode=int					The mode of system (cores mode 0, processes mode 1, default 0).\n");
 	printf("	-c, --cores=string				The cores of system, use commas separated string of core numbers (\"0,1,2,3,...\", need -m 0.\n");
 	printf("	-p, --pids=string				The pids of system, use commas separated string of pids (\"pid0,pid1,pid2,pid3,...\", need -m 1.\n");

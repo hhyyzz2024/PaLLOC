@@ -16,7 +16,7 @@ PaLLOC_DIR=${current_dir}/..
 #workload_define_files=(workload_define3.conf)
 #bench_name=bench_baseline_fair_item.sh
 
-mixs=(0)
+mixs=(0 1 2 3 4 5 6 7 8 9)
 workload_define_files=(workload_define0.conf)
 bench_name=bench_item.sh
 result_dir="palloc"

@@ -16,10 +16,10 @@ static double mb_threshold = 1000;      // 1000 MB/s
 
 namespace PaLLOC {
 #ifdef TEST
-pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, experimental_data& exp_data) 
+pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, int interval, experimental_data& exp_data) 
     : allocator(objects, m, backend, monitor, discriminator), exp_data(exp_data)
 #else 
-pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator)
+pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, int interval)
                 : allocator(objects, m, backend, monitor, discriminator)
 #endif
 {
@@ -29,7 +29,7 @@ pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, 
     }
 
     // set allocating period
-    int allocating_period = 1000;
+    int allocating_period = interval;
     allocating_req.tv_sec = allocating_period / 1000;
     allocating_req.tv_nsec = (allocating_period % 1000) * 1000000;
 

@@ -21,6 +21,7 @@ workload_define_files=(workload_define0.conf)
 bench_name=bench_item.sh
 result_dir="palloc"
 period=100
+interval=10
 
 if [ $# -eq 1 ];
 then
@@ -48,7 +49,7 @@ do
     do
         echo ${workload_define_file}
         cd ${PaLLOC_DIR}/scripts
-        setsid ./${bench_name} ${result_dir} ${workload_define_file} ${mix} ${period} ${sudoPW} &
+        setsid ./${bench_name} ${result_dir} ${workload_define_file} ${mix} ${period} ${interval} ${sudoPW} &
         pid=$(pgrep -f ${bench_name})
 	    tail --pid=${pid} -f /dev/null
     done

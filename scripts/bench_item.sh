@@ -7,7 +7,8 @@ result_dir=$1
 workload_define_file=$2
 mix_num=$3
 period=$4
-sudoPW=$5
+interval=$5
+sudoPW=$6
 source $workload_define_file
 
 current_dir=$(pwd)
@@ -60,7 +61,7 @@ if [[ $mix_num -eq 0 ]];then
     done
 
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -81,7 +82,7 @@ elif [[ $mix_num -eq 1 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -103,7 +104,7 @@ elif [[ $mix_num -eq 2 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -125,7 +126,7 @@ elif [[ $mix_num -eq 3 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -147,7 +148,7 @@ elif [[ $mix_num -eq 4 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -169,7 +170,7 @@ elif [[ $mix_num -eq 5 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -191,7 +192,7 @@ elif [[ $mix_num -eq 6 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -212,7 +213,7 @@ elif [[ $mix_num -eq 7 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -234,7 +235,7 @@ elif [[ $mix_num -eq 8 ]];then
         time ./core_exec.sh $core ${workload_queue[@]} &
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 
@@ -257,7 +258,7 @@ else
         process_ids+=("$!")
     done
     cd ${PROJ_DIR}
-    echo $sudoPW | sudo -S ./PaLLOC -P $period -m 0 -c $cores_arg -a 1
+    echo $sudoPW | sudo -S ./PaLLOC -P $period -i $interval -m 0 -c $cores_arg -a 1
     mv experimenta_ipc_data.csv ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.csv
     mv experimenta_ipc_data.data ${IPC_RESULTS_DIR}/${mix_name}_experimenta_ipc_data.data
 

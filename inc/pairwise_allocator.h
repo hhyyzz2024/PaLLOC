@@ -12,10 +12,10 @@ class pairwise_allocator : public allocator {
 
 public:
 #ifdef TEST
-    pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, 
+    pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, int interval,
         experimental_data& exp_data);
 #else
-    pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator);
+    pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, int interval);
 #endif
     virtual ~pairwise_allocator() {}
     virtual void reset_obj_allocation_descriptor(const int& obj_id);

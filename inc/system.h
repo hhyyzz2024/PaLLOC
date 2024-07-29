@@ -41,11 +41,12 @@ private:
 
     pid_t pid;
     int system_core;
+    int allocation_interval = 10;
 	mode m_mode;
 	
 	bool process_exit = false;
 	bool allocator_on = true;
-    uint64_t period;
+    uint64_t period = 100;
     uint64_t *flags;
 	static system *instance;
 

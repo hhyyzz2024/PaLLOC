@@ -17,17 +17,12 @@ static double mb_threshold = 1000;      // 1000 MB/s
 namespace PaLLOC {
 #ifdef TEST
 pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, int interval, experimental_data& exp_data) 
-    : allocator(objects, m, backend, monitor, discriminator), exp_data(exp_data)
+    : allocator(objects, backend, monitor, discriminator), exp_data(exp_data)
 #else 
 pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator, int interval)
-                : allocator(objects, m, backend, monitor, discriminator)
+                : allocator(objects, backend, monitor, discriminator)
 #endif
 {
-    if(m_mode != mode::CORES) {
-        log_error("fast_pair_allocator only support core mode!\n");
-        exit(-1);
-    }
-
     // set allocating period
     int allocating_period = interval;
     allocating_req.tv_sec = allocating_period / 1000;
@@ -51,8 +46,12 @@ pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, 
 	for(auto obj : objects) {
 		allocation_descriptor descriptor;
 		descriptor.obj_id = obj;
-        descriptor.core_id = obj;
         descriptor.class_id = clos_index;
+        if(m == mode::CORES) {
+            descriptor.core_id = obj;
+        } else {
+            descriptor.core_id = get_cpu_from_pid(obj);
+        }
         descriptor.sockect_id = numa_node_of_cpu(descriptor.core_id);
         
         if(std::find(sockets.begin(), sockets.end(), descriptor.sockect_id) == std::end(sockets)) {
@@ -64,7 +63,7 @@ pairwise_allocator::pairwise_allocator(const std::vector<int>& objects, mode m, 
         descriptor.roofline_cache_ways = 1;
         descriptor.mb_throttle = MIN_MB_THROTTLE;
         bitmask <<= 1;
-        allocator_backend->cos_association(descriptor.core_id, descriptor.class_id);
+        allocator_backend->cos_association(descriptor.obj_id, descriptor.class_id);
         allocator_backend->allocating_cache(descriptor.sockect_id, descriptor.class_id, descriptor.cache_bitmask);
         backend->allocating_mb(descriptor.sockect_id, descriptor.class_id, &descriptor.mb_throttle);
         deduct_cache_from_system(&descriptor);
@@ -551,7 +550,7 @@ pairwise_allocator::allocation_descriptor *pairwise_allocator::find_cache_pair_k
             payment_descriptor = descriptor;
         }
 
-        log_critical("Core %d, roofline delta ipc: %.4f\n", descriptor->core_id, descriptor->delta);
+        log_critical("Object %d, roofline delta ipc: %.4f\n", descriptor->obj_id, descriptor->delta);
     }
 
     for(auto it = cache_completion_queue.begin(); it != cache_completion_queue.end(); it++) {
@@ -574,7 +573,7 @@ pairwise_allocator::allocation_descriptor *pairwise_allocator::find_cache_pair_k
             payment_descriptor = descriptor;
         }
 
-        log_critical("Core %d, roofline delta ipc: %.4f\n", descriptor->core_id, descriptor->delta);
+        log_critical("Object %d, roofline delta ipc: %.4f\n", descriptor->obj_id, descriptor->delta);
     }
 
     if(payment_descriptor) {
@@ -644,8 +643,8 @@ void pairwise_allocator::attempt_allocating_pair_cache()
             double delta2 = descriptor2->delta;
             double benifit = delta1 - delta2;
 
-            log_critical("Find core %d pair core %d, descriptor 1 gain ipc: %.4f, descriptor 2 loss ipc: %.4f, benifit: %.4f\n", 
-                descriptor1->core_id, descriptor2->core_id, delta1, delta2, benifit);
+            log_critical("Find Object %d pair Object %d, descriptor 1 gain ipc: %.4f, descriptor 2 loss ipc: %.4f, benifit: %.4f\n", 
+                descriptor1->obj_id, descriptor2->obj_id, delta1, delta2, benifit);
 
             if(benifit < 0) {
                 // 借出后损失更多
@@ -986,8 +985,8 @@ void pairwise_allocator::attempt_allocating_pair_mb()
         double delta2 = descriptor2->delta;
         double benifit = delta1 - delta2;
 
-        log_critical("Find core %d mb pair core %d, descriptor 1 gain ipc: %.4f, descriptor 2 loss ipc: %.4f, benifit: %.4f\n", 
-            descriptor1->core_id, descriptor2->core_id, delta1, delta2, benifit);
+        log_critical("Find Object %d mb pair Object %d, descriptor 1 gain ipc: %.4f, descriptor 2 loss ipc: %.4f, benifit: %.4f\n", 
+            descriptor1->obj_id, descriptor2->obj_id, delta1, delta2, benifit);
 
         if(benifit < 0) {
             //归还MB给已借出的k

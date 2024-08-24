@@ -166,6 +166,27 @@ int get_cpus_from_pid(pid_t pid, std::vector<int>& cpu_ids)
 	return RET_OK;
 }
 
+int get_cpu_from_pid(pid_t pid)
+{
+    std::vector<int> cpu_ids;
+	cpu_set_t cpu_mask;
+	int cpus = sysconf(_SC_NPROCESSORS_CONF);
+	
+	CPU_ZERO(&cpu_mask);
+    if (sched_getaffinity(0, sizeof(cpu_mask), &cpu_mask) == -1) {
+        printf("Get CPU affinity failue, ERROR:%s\n", strerror(errno));
+        return -1; 
+    }
+
+	for(int cpu = 0; cpu < cpus; cpu++) {
+		if (CPU_ISSET(cpu, &cpu_mask)) {
+        	cpu_ids.emplace_back(cpu);
+        }    
+	}
+
+	return cpu_ids[0];
+}
+
 double cpu_second(void)
 {
     struct timeval tv;

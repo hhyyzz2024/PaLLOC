@@ -4,8 +4,8 @@
 
 namespace PaLLOC {
 
-allocator::allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator) : 
-		objs(objects), m_mode(m), m_status(allocator_status::init), allocator_backend(backend), m_monitor(monitor), m_discriminator(discriminator)
+allocator::allocator(const std::vector<int>& objects, backend *backend, monitor *monitor, discriminator *discriminator) : 
+		objs(objects), m_status(allocator_status::init), allocator_backend(backend), m_monitor(monitor), m_discriminator(discriminator)
 {
     // Initialize cache information in the system
 	get_llc_info(&remain_cache_size, &remain_cache_bitmask, &max_num_cache_way, &cache_size_per_way);

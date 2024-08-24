@@ -5,25 +5,20 @@ namespace PaLLOC {
 
 monitor* monitor::instance = nullptr;
 
-monitor::monitor(const uint64_t& period, const std::vector<int>& objects, const monitor_mode& mode, backend *backend)
-         : period(period), monitoring_objects(objects), mon_mode(mode), m_monitor_backend(backend)
+monitor::monitor(const uint64_t& period, const std::vector<int>& objects, backend *backend)
+         : period(period), monitoring_objects(objects), m_monitor_backend(backend)
 {
-	if(mode >= mode::UNKNOWN_MODE) {
-		printf("Error monitor mode!\n");
-		exit(-1);
-	}
-
     if(setup_monitor() != RET_OK) {
         printf("Create monitor fail!\n");
 		exit(-1);
     }
 }
 
-monitor* monitor::get_instance(const uint64_t& period, const std::vector<int>& objects, const monitor_mode& mon_mode, backend *backend)
+monitor* monitor::get_instance(const uint64_t& period, const std::vector<int>& objects, backend *backend)
 {
     if(!instance) {
         static std::once_flag flag;
-        std::call_once(flag, [&]{ instance = new (std::nothrow) monitor(period, objects, mon_mode, backend); });
+        std::call_once(flag, [&]{ instance = new (std::nothrow) monitor(period, objects, backend); });
     }
 
     return instance;
@@ -47,7 +42,7 @@ void monitor::clean_up()
 
 int monitor::setup_monitor()
 {
-    return m_monitor_backend->setup_monitor(mon_mode);
+    return m_monitor_backend->setup_monitor();
 }
 
 void monitor::stop_monitor()

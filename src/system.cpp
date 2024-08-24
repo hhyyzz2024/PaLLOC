@@ -114,9 +114,13 @@ void system::clean_up()
 #ifdef TEST
 	std::ofstream fout1("experimenta_ipc_data.csv", std::ios_base::out);
 	std::ofstream fout2("experimenta_ipc_data.data", std::ios_base::out);
-
-	fout1 << "Core,IPC" << std::endl;
-	fout2 << "#Core IPC" << std::endl;
+	if(m_mode == mode::CORES) {
+		fout1 << "Core,IPC" << std::endl;
+		fout2 << "#Core IPC" << std::endl;
+	} else {
+		fout1 << "Pid,IPC" << std::endl;
+		fout2 << "#Pid IPC" << std::endl;
+	}
 
 	double average_allocation_delay = 0.0;
 	double average_allocation_num = 0.0;
@@ -142,18 +146,18 @@ void system::clean_up()
 	}
 	average_algorithm_overhead = system_algorithm_overhead / exp_data.algorithm_overhead_vec.size();
 
-	for(auto& core_ipc_pair : exp_data.core_ipc_table) {
-		int core = core_ipc_pair.first;
+	for(auto& obj_ipc_pair : exp_data.obj_ipc_table) {
+		int obj = obj_ipc_pair.first;
 
-		const std::vector<monitor_data>& mon_datas = m_monitor->get_monitor_datas(core);
+		const std::vector<monitor_data>& mon_datas = m_monitor->get_monitor_datas(obj);
 		for(const auto& mon_data : mon_datas) {
-			core_ipc_pair.second += mon_data.ipc;
+			obj_ipc_pair.second += mon_data.ipc;
 		}
 
-		core_ipc_pair.second /= mon_datas.size();
+		obj_ipc_pair.second /= mon_datas.size();
 		
-		fout1 << core << "," << core_ipc_pair.second << std::endl;
-		fout2 << core << " " << core_ipc_pair.second << std::endl;
+		fout1 << obj << "," << obj_ipc_pair.second << std::endl;
+		fout2 << obj << " " << obj_ipc_pair.second << std::endl;
 	}
 
 	fout1.close();
@@ -218,12 +222,12 @@ system::system(int argc, char **argv)
 
 #ifdef TEST
 	for(const auto& obj : objs) {
-		exp_data.core_ipc_table.insert({obj, 0.0});
+		exp_data.obj_ipc_table.insert({obj, 0.0});
 	}
 #endif
 
-	m_tool_backend = new pqos_backend(objs);
-	m_monitor = monitor::get_instance(period, objs, m_mode, m_tool_backend);
+	m_tool_backend = new pqos_backend(objs, m_mode);
+	m_monitor = monitor::get_instance(period, objs, m_tool_backend);
 	
 	for(int i = 0; i < objs_size; i++) {
 		int index = objs[i];
@@ -238,7 +242,7 @@ system::system(int argc, char **argv)
 #ifdef TEST
 		m_allocator = new pairwise_allocator(objs, m_mode, m_tool_backend, m_monitor, m_discriminator, allocation_interval, exp_data);
 #else
-		m_allocator = new pairwise_allocator(objs, m_mode, m_tool_backend, m_monitor, allocation_interval, m_discriminator);
+		m_allocator = new pairwise_allocator(objs, m_mode, m_tool_backend, m_monitor, m_discriminator, allocation_interval);
 #endif
 	}
 

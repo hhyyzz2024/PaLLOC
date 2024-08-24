@@ -10,7 +10,7 @@ namespace PaLLOC {
 class test_allocator : public allocator {
 public:
     test_allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator)
-        : allocator(objects, m, backend, monitor, discriminator)
+        : allocator(objects, backend, monitor, discriminator)
     {
         uint32_t clos_id = 1;
         uint64_t bitmask = 0;

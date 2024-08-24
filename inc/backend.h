@@ -15,7 +15,7 @@ public:
 	virtual ~backend() {};
 
 	// monitor function
-	virtual int setup_monitor(mode mon_mode) {return RET_OK;}
+	virtual int setup_monitor() {return RET_OK;}
 	virtual void stop_monitor() {}
 	virtual void start_monitoring() = 0;
 	virtual void stop_monitoring() = 0;
@@ -24,7 +24,7 @@ public:
 	virtual double get_llc_read_miss_latency(uint32_t socket) {return 0;}
 
     //allocator function
-	virtual int cos_association(const unsigned& core, const unsigned& class_id) = 0;
+	virtual int cos_association(const int& obj, const unsigned& class_id) = 0;
 	virtual int allocating_cache(const std::vector<unsigned>& sockets, unsigned class_id, uint64_t ways_mask) = 0;
 	virtual int allocating_cache(const uint32_t& socket, unsigned class_id, uint64_t ways_mask) = 0;
 	virtual int allocating_mb(const std::vector<unsigned>& sockets, unsigned class_id, unsigned* mb_throttle) = 0;
@@ -35,11 +35,11 @@ public:
 
 class pqos_backend : public backend{
 public:
-	pqos_backend(const std::vector<int>& objects);
+	pqos_backend(const std::vector<int>& objects, const mode& mode);
 	virtual ~pqos_backend();
 
 	// CMT & MBM monitor backend
-	virtual int setup_monitor(mode mon_mode);
+	virtual int setup_monitor();
 	virtual void stop_monitor();
 	virtual void start_monitoring();
 	virtual void stop_monitoring();
@@ -48,7 +48,7 @@ public:
 	
 
 	// CAT & MBA allocator backend
-	virtual int cos_association(const unsigned& core, const unsigned& class_id);
+	virtual int cos_association(const int& obj, const unsigned& class_id);
 	virtual int allocating_cache(const std::vector<unsigned>& sockets, unsigned class_id, uint64_t ways_mask);
 	virtual int allocating_cache(const uint32_t& socket, unsigned class_id, uint64_t ways_mask);
 	virtual int allocating_mb(const std::vector<unsigned>& sockets, unsigned class_id, unsigned* mb_throttle);
@@ -63,6 +63,7 @@ private:
 	unsigned *l3cat_ids;
 	unsigned *p_mba_ids;
 	unsigned mba_id_count;
+	mode m_mode;
 	std::vector<pqos_mon_data *> mon_data_groups;
 	const std::vector<int>& pqos_objects;
 };

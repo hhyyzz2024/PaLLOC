@@ -7,8 +7,8 @@
 
 namespace PaLLOC {
 
-pqos_backend::pqos_backend(const std::vector<int>& objects) 
-		: pqos_objects(objects)
+pqos_backend::pqos_backend(const std::vector<int>& objects, const mode& mode) 
+		: pqos_objects(objects), m_mode(mode)
 {
 	mon_data_groups.resize(pqos_objects.size());
 
@@ -121,13 +121,13 @@ int pqos_backend::reset_monitor()
     return exit_val;
 }
 
-int pqos_backend::setup_monitor(mode mon_mode)
+int pqos_backend::setup_monitor()
 {
 	int ret;
     pqos_mon_event mon_event = (enum pqos_mon_event)(PQOS_MON_EVENT_L3_OCCUP | PQOS_PERF_EVENT_IPC | PQOS_PERF_EVENT_LLC_MISS 
     | PQOS_PERF_EVENT_LLC_REF | PQOS_MON_EVENT_LMEM_BW);
 	
-	if(mon_mode == mode::CORES) {
+	if(m_mode == mode::CORES) {
 		for(int i = 0; i < pqos_objects.size(); i++) {
 			const unsigned int *core = (const unsigned int *)&pqos_objects[i];
 			ret = pqos_mon_start_cores(1, core, mon_event, NULL, &mon_data_groups[i]);
@@ -215,11 +215,16 @@ void pqos_backend::parse_monitor_data(const int& group_index, monitor_data& curr
 	current_data.hpki = current_data.llc_hit * 1000 / (double)current_data.period_instructions;
 }
 
-int pqos_backend::cos_association(const unsigned& core, const unsigned& class_id)
+int pqos_backend::cos_association(const int& obj, const unsigned& class_id)
 {
-    int ret = pqos_alloc_assoc_set(core, class_id);
+    int ret = RET_OK;
+    if(m_mode == mode::CORES) {
+        ret = pqos_alloc_assoc_set(obj, class_id);
+    } else {
+        ret = pqos_alloc_assoc_set_pid(obj, class_id);
+    }
     if (ret != PQOS_RETVAL_OK) {
-        printf("Core %d associate cos %d failed!\n", core, class_id);
+        printf("Object %d associate cos %d failed!\n", obj, class_id);
         return RET_ERR;
     }
 

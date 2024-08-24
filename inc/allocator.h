@@ -41,7 +41,7 @@ enum class allocator_status {
 
 class allocator {
 public:
-    allocator(const std::vector<int>& objects, mode m, backend *backend, monitor *monitor, discriminator *discriminator);
+    allocator(const std::vector<int>& objects, backend *backend, monitor *monitor, discriminator *discriminator);
     virtual ~allocator() {}
     virtual void allocating() = 0;
     virtual void reset_obj_allocation_descriptor(const int& obj_id) = 0;
@@ -58,9 +58,9 @@ public:
     uint32_t max_num_cache_way;							//The maximum number of cache ways in the system
     uint32_t remain_num_cache_way;						//The remain number of cache ways in the system
 	uint32_t remain_cache_size;							//The remain cache size of the system
-    uint32_t cache_size_per_way;
-    mode m_mode;										//Manager mode, 0 is core mode, 1 is process mode (default 0)
+    uint32_t cache_size_per_way;	
     allocator_status m_status;
+    
     double remain_mb;
     double max_mb;
     uint64_t remain_cache_bitmask;						//The remain cache bitmask of the system

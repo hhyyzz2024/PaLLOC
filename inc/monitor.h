@@ -12,7 +12,7 @@ namespace PaLLOC {
 
 class monitor {
 public:
-    static monitor* get_instance(const uint64_t& period, const std::vector<int>& objects, const monitor_mode& mon_mode, backend *backend);
+    static monitor* get_instance(const uint64_t& period, const std::vector<int>& objects, backend *backend);
     void clean_up();
     void start_monitoring();
     void stop_monitoring();
@@ -25,7 +25,7 @@ public:
     inline double get_llc_read_miss_latency(uint32_t socket) {return m_monitor_backend->get_llc_read_miss_latency(socket);}
 
 private:
-    monitor(const uint64_t& period, const std::vector<int>& objects, const monitor_mode& mon_mode, backend *backend);
+    monitor(const uint64_t& period, const std::vector<int>& objects, backend *backend);
     monitor(const monitor& other) = delete;
     monitor& operator=(const monitor& other) = delete;
 	int setup_monitor();
@@ -33,8 +33,6 @@ private:
 	static monitor* get_instance();
 
     uint64_t period;
-    mode mon_mode;
-
 	static monitor *instance;
 	backend *m_monitor_backend;
     std::vector<int> monitoring_objects;                            //if mode = PROCESSES, objects is pid of process, else if mode = CORES, objects is core id

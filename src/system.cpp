@@ -128,6 +128,7 @@ void system::clean_up()
 	double average_allocating_num = 0.0;
 	double system_algorithm_overhead = 0.0;
 	double average_algorithm_overhead;
+	double average_need_reallocation_objs = 0.0;
 
 	for(const auto& attempt_allocating_exp_data : exp_data.attempt_allocating_exp_data_vec) {
 		average_allocation_delay += attempt_allocating_exp_data.attempt_allocating_elapse;
@@ -140,6 +141,7 @@ void system::clean_up()
 	average_allocation_num /= exp_data.attempt_allocating_exp_data_vec.size();
 	average_find_roofline_num /= exp_data.attempt_allocating_exp_data_vec.size();
 	average_allocating_num /= exp_data.attempt_allocating_exp_data_vec.size();
+	average_need_reallocation_objs = static_cast<double>(std::accumulate(exp_data.need_realloc_objs_vec.begin(), exp_data.need_realloc_objs_vec.end(), 0)) / exp_data.need_realloc_objs_vec.size();
 
 	for(const auto& algorithm_overhead : exp_data.algorithm_overhead_vec) {
 		system_algorithm_overhead += algorithm_overhead;
@@ -168,17 +170,47 @@ void system::clean_up()
 
 
 	// Average_Attempt_Allocation_Num means the average number of attempts to call the PQOS allocation function, including calls when searching for rooflines and calls when allocating resources in pair algrithom.
+	// Average_Need_Reallocation_Objs means the average number of objs in an allocating process. Average_Search_Num_Single_Obj=Average_Attempt_Allocation_Num/Average_Need_Reallocation_Objs.
 	// Average_Find_Roofline_Num means the average number of times to find roofline in an allocation request.
 	// Average_Allocating_num means the average number of allocating resource in an allocation request.
 	// Total_Allocation_Request means the total number of resource allocation requests during the management period
 	// Average_Allocation_Delay means the time from the start of an allocation request to the completion of the allocation
 	// Algorithm_Total_Overhead means the total overhead of the allocation algorithm over the management period
 	// Algorithm_Average_Overhead means average allocation algorithm overhead for each allocation
-	fout1 << "Average_Attempt_Allocation_Num,Average_Find_Roofline_Num,Average_Allocating_num,Total_Allocation_Request,Average_Allocation_Delay,Algorithm_Total_Overhead,Algorithm_Average_Overhead" << std::endl;
-	fout1 << average_allocation_num << "," << average_find_roofline_num << "," << average_allocating_num << "," << exp_data.allocating_request_times << "," << average_allocation_delay << "," << system_algorithm_overhead << "," << average_algorithm_overhead << std::endl;
+#ifdef MONITORING_SELF_IPC
+	double real_ipc_core0 = m_monitor->get_real_ipc();
+	fout1 << "Real_IPC_Core0,Average_Attempt_Allocation_Num,Average_Need_Reallocation_Objs,Average_Find_Roofline_Num,Average_Allocating_num,Total_Allocation_Request,Average_Allocation_Delay,Algorithm_Total_Overhead,Algorithm_Average_Overhead" << std::endl;
+	fout1 << real_ipc_core0 << "," << average_allocation_num << "," << average_need_reallocation_objs << "," << average_find_roofline_num << "," << average_allocating_num << "," << exp_data.allocating_request_times << "," << average_allocation_delay << "," << system_algorithm_overhead << "," << average_algorithm_overhead << std::endl;
 
-	fout2 << "#Average_Attempt_Allocation_Num Average_Find_Roofline_Num Average_Allocating_num Total_Allocation_Request Average_Allocation_Delay Algorithm_Total_Overhead Algorithm_Average_Overhead" << std::endl;
-	fout2 << average_allocation_num << " " << average_find_roofline_num << " " << average_allocating_num << " " << exp_data.allocating_request_times << " " << average_allocation_delay << " " << system_algorithm_overhead << " " << average_algorithm_overhead << std::endl;
+	fout2 << "#Real_IPC_Core0 Average_Attempt_Allocation_Num Average_Need_Reallocation_Objs Average_Find_Roofline_Num Average_Allocating_num Total_Allocation_Request Average_Allocation_Delay Algorithm_Total_Overhead Algorithm_Average_Overhead" << std::endl;
+	fout2 << real_ipc_core0 << " " << average_allocation_num << " " << average_need_reallocation_objs << " " << average_find_roofline_num << " " << average_allocating_num << " " << exp_data.allocating_request_times << " " << average_allocation_delay << " " << system_algorithm_overhead << " " << average_algorithm_overhead << std::endl;
+
+#elif MONITORING_SELF_LLC
+	uint64_t llc_request;
+	double llc_request_ratio;
+	m_monitor->get_llc_request(llc_request, llc_request_ratio, 0);
+	
+	fout1 << "LLC_Request,LLC_Request_Ratio" << std::endl;
+	fout1 << llc_request << "," << llc_request_ratio << std::endl;
+
+	fout2 << "#LLC_Request LLC_Request_Ratio" << std::endl;
+	fout2 << llc_request << " " << llc_request_ratio << std::endl;
+
+#elif MONITORING_SELF_MB
+	double mb = m_monitor->get_mb();
+	fout1 << "MB_Occupancy,Average_Attempt_Allocation_Num,Average_Need_Reallocation_Objs,Average_Find_Roofline_Num,Average_Allocating_num,Total_Allocation_Request,Average_Allocation_Delay,Algorithm_Total_Overhead,Algorithm_Average_Overhead" << std::endl;
+	fout1 << mb << "," << average_allocation_num << "," << average_need_reallocation_objs << "," << average_find_roofline_num << "," << average_allocating_num << "," << exp_data.allocating_request_times << "," << average_allocation_delay << "," << system_algorithm_overhead << "," << average_algorithm_overhead << std::endl;
+
+	fout2 << "#MB_Occupancy Average_Attempt_Allocation_Num Average_Need_Reallocation_Objs Average_Find_Roofline_Num Average_Allocating_num Total_Allocation_Request Average_Allocation_Delay Algorithm_Total_Overhead Algorithm_Average_Overhead" << std::endl;
+	fout2 << mb << " " << average_allocation_num << " " << average_need_reallocation_objs << " " << average_find_roofline_num << " " << average_allocating_num << " " << exp_data.allocating_request_times << " " << average_allocation_delay << " " << system_algorithm_overhead << " " << average_algorithm_overhead << std::endl;
+
+#else
+	fout1 << "Average_Attempt_Allocation_Num,Average_Need_Reallocation_Objs,Average_Find_Roofline_Num,Average_Allocating_num,Total_Allocation_Request,Average_Allocation_Delay,Algorithm_Total_Overhead,Algorithm_Average_Overhead" << std::endl;
+	fout1 << average_allocation_num << "," << average_need_reallocation_objs << "," << average_find_roofline_num << "," << average_allocating_num << "," << exp_data.allocating_request_times << "," << average_allocation_delay << "," << system_algorithm_overhead << "," << average_algorithm_overhead << std::endl;
+
+	fout2 << "#Average_Attempt_Allocation_Num Average_Need_Reallocation_Objs Average_Find_Roofline_Num Average_Allocating_num Total_Allocation_Request Average_Allocation_Delay Algorithm_Total_Overhead Algorithm_Average_Overhead" << std::endl;
+	fout2 << average_allocation_num << " " << average_need_reallocation_objs << " " << average_find_roofline_num << " " << average_allocating_num << " " << exp_data.allocating_request_times << " " << average_allocation_delay << " " << system_algorithm_overhead << " " << average_algorithm_overhead << std::endl;
+#endif
 
 	fout1.close();
 	fout2.close();
@@ -203,15 +235,21 @@ system::system(int argc, char **argv)
 	parse_argument(argc, argv);
 
 	int max_core_num = std::thread::hardware_concurrency();
-	flags = new uint64_t[max_core_num];
+/*	flags = new uint64_t[max_core_num];
     for(int core = 0; core < max_core_num; core++) {
         disable_prefetch(core, &flags[core]);
-    }
+    }*/
 
 	int objs_size = objs.size();
-	
+
+#if (defined MONITORING_SELF_IPC) || (defined MONITORING_SELF_LLC)
+	system_core = 0;
+#elif MONITORING_SELF_MB
 	system_core = 1;
-	
+#else
+	system_core = 46;
+#endif
+	int allocation_interval = 10;
     pid = getpid();
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
@@ -303,13 +341,15 @@ system::~system()
 	
 //    delete m_recorder;
 
-	int max_core_num = std::thread::hardware_concurrency();
+/*	int max_core_num = std::thread::hardware_concurrency();
 	for(int core = 0; core < max_core_num; core++) {
 		enable_prefetch(core, flags[core]);
 	}
 
-	delete [] flags;
+	delete [] flags;*/
 }
+
+
 
 void system::run()
 {
@@ -317,6 +357,10 @@ void system::run()
     req.tv_sec = period / 1000;
     req.tv_nsec = (period % 1000) * 1000000;
     struct timespec rem;
+
+#ifdef ENABLE_SELF_MONITOR
+	m_monitor->start_monitoring_slef();
+#endif
 
 	long long start = cpu_microsecond();
     while(!process_exit) {
@@ -340,6 +384,10 @@ void system::run()
 			m_allocator->allocating();
 		}
     }
+
+#ifdef ENABLE_SELF_MONITOR
+	m_monitor->stop_monitoring_slef();
+#endif
 
     log_info("Will exit run!\n");
 }

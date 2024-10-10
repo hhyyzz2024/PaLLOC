@@ -11,6 +11,7 @@ namespace PaLLOC{
 struct monitor_data {
     uint64_t period_instructions = 0;
     uint64_t current_instructions = 0;
+	uint64_t cycles = 0;
 	uint64_t llc_request = 0;
 	uint64_t llc_miss = 0;
     uint64_t llc_hit = 0;

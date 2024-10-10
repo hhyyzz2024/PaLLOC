@@ -152,6 +152,17 @@ int pqos_backend::setup_monitor()
 		}
 	}
 
+#ifdef ENABLE_SELF_MONITOR
+    self_pid = getpid();
+    ret = pqos_mon_start_pids2(1, &self_pid, mon_event, NULL, &self_mon_data);
+    if (ret != PQOS_RETVAL_OK) {
+        printf("Monitoring start error on slef_pid %u,"
+                "status %d\n",
+                self_pid, ret);
+        return RET_MONITOR_EXIST_ERR;
+    }
+#endif
+
 	return RET_OK;
 }
 
@@ -163,7 +174,52 @@ void pqos_backend::stop_monitor()
 	    	printf("Monitoring %d stop error!\n", i);
         log_info("Monitor %d has stop!\n", i);
     }
+
+#ifdef ENABLE_SELF_MONITOR
+    int ret = pqos_mon_stop(self_mon_data);
+    if (ret != PQOS_RETVAL_OK)
+        printf("Slef monitor stop error!\n");
+    log_info("Slef monitor has stop!\n");
+#endif
 }
+
+#ifdef ENABLE_SELF_MONITOR
+void pqos_backend::start_monitoring_slef()
+{
+    pqos_mon_poll(&self_mon_data, 1);
+}
+
+void pqos_backend::stop_monitoring_slef()
+{
+    pqos_mon_poll(&self_mon_data, 1);
+}
+
+#ifdef MONITORING_SELF_IPC
+uint64_t pqos_backend::get_self_instructions()
+{
+    const struct pqos_event_values *pv = &self_mon_data->values;
+    return pv->ipc_retired_delta;
+}
+#endif
+
+#ifdef MONITORING_SELF_LLC
+void pqos_backend::get_llc_request(uint64_t& llc_request)
+{
+    const struct pqos_event_values *pv = &self_mon_data->values;
+
+    pqos_mon_get_value(self_mon_data, PQOS_PERF_EVENT_LLC_REF, NULL, &llc_request);
+}
+#endif
+
+#ifdef MONITORING_SELF_MB
+uint64_t pqos_backend::get_mb()
+{
+    const struct pqos_event_values *pv = &self_mon_data->values;
+    return pv->mbm_local_delta;
+}
+#endif
+
+#endif
 
 void pqos_backend::start_monitoring()
 {
@@ -184,7 +240,7 @@ void pqos_backend::parse_monitor_data(const int& group_index, monitor_data& curr
     current_data.current_time =  previous_data.current_time + (double)period / 1000;            // s
     current_data.period_instructions = pv->ipc_retired_delta;
     current_data.current_instructions = pv->ipc_retired;
-
+    current_data.cycles = pv->ipc_unhalted_delta;
 	// llc
 	pqos_mon_get_value(mon_data_groups[group_index], PQOS_PERF_EVENT_LLC_REF, NULL, &current_data.llc_request);
     current_data.llc_miss = pv->llc_misses_delta;

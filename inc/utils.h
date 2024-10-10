@@ -114,6 +114,7 @@ int get_num_closids(uint32_t *num_closids);
 int get_llc_info(uint32_t *cache_size, uint64_t *cache_mask, uint32_t *num_cache_way, uint32_t *size_per_way);
 int get_cpus_from_pid(pid_t pid, std::vector<int>& cpus);
 int get_cpu_from_pid(pid_t pid);
+uint32_t get_socket(int obj, mode m);
 static inline unsigned sock_to_l3id(const unsigned& sock) {return sock;}
 static inline unsigned sock_to_mbid(const unsigned& sock) {return sock;}
 
@@ -138,6 +139,7 @@ struct experimental_data{
 	std::unordered_map<int, double> obj_ipc_table;
 	std::vector<attempt_allocating_data> attempt_allocating_exp_data_vec;
 	std::vector<double> algorithm_overhead_vec;
+	std::vector<int> need_realloc_objs_vec;
 };
 #endif
 

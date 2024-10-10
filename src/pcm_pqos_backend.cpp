@@ -2,7 +2,7 @@
 
 namespace PaLLOC{
 
-pcm_pqos_backend::pcm_pqos_backend()
+pcm_pqos_backend::pcm_pqos_backend(const mode& m) : m_mode(m)
 {
     log_info("Begin init PCM Monitor and PQos Allocator!\n");
 
@@ -161,11 +161,16 @@ double pcm_pqos_backend::get_llc_read_miss_latency(uint32_t socket)
     return pcm::getLLCReadMissLatency(before_state.sktstate[socket], after_state.sktstate[socket]) * pcm::getActiveAverageFrequency(before_state.sktstate[socket], after_state.sktstate[socket]) / 1e9;
 }
 
-int pcm_pqos_backend::cos_association(const unsigned& core, const unsigned& class_id)
+int pcm_pqos_backend::cos_association(const int& obj, const unsigned& class_id)
 {
-    int ret = pqos_alloc_assoc_set(core, class_id);
+    int ret = RET_OK;
+    if(m_mode == mode::CORES) {
+        ret = pqos_alloc_assoc_set(obj, class_id);
+    } else {
+        ret = pqos_alloc_assoc_set_pid(obj, class_id);
+    }
     if (ret != PQOS_RETVAL_OK) {
-        printf("Core %d associate cos %d failed!\n", core, class_id);
+        printf("Object %d associate cos %d failed!\n", obj, class_id);
         return RET_ERR;
     }
 

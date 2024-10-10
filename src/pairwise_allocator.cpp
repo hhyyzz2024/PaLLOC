@@ -269,6 +269,7 @@ void pairwise_allocator::discriminating()
         exp_data.allocating_num = 0;
         exp_data.allocating_request_times++;
         exp_data.attempt_allocating_start = cpu_second();
+        exp_data.need_realloc_objs_vec.emplace_back(reallocate_obj_ids.size());
 #endif
         check_cache_leak();
         check_mb_leak();

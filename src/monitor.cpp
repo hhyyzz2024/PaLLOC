@@ -60,6 +60,60 @@ void monitor::stop_monitoring()
     m_monitor_backend->stop_monitoring();
 }
 
+#ifdef ENABLE_SELF_MONITOR
+void monitor::start_monitoring_slef()
+{
+    m_monitor_backend->start_monitoring_slef();
+}
+
+void monitor::stop_monitoring_slef()
+{
+    m_monitor_backend->stop_monitoring_slef();
+}
+
+#ifdef MONITORING_SELF_IPC
+double monitor::get_real_ipc()
+{
+    uint64_t instructions, total_instructions_core0 = 0, total_cycles = 0;
+    double ipc = 0.0;
+    instructions = m_monitor_backend->get_self_instructions();
+    for(auto monitor_data : monitor_data_map[0]) {
+        total_instructions_core0 += monitor_data.period_instructions;
+        total_cycles += monitor_data.cycles;
+    }
+    if(instructions != 0) {
+        ipc = static_cast<double>(total_instructions_core0 - instructions) / total_cycles;
+    }
+
+    return ipc;
+}
+#endif
+
+#ifdef MONITORING_SELF_LLC
+void monitor::get_llc_request(uint64_t& llc_request, double& llc_request_ratio, int index)
+{
+    m_monitor_backend->get_llc_request(llc_request);
+    
+    const std::vector<monitor_data>& core_monitor_data = get_monitor_datas(index);
+
+    double core_llc_request = 0;
+    for(const auto& mon_data : core_monitor_data) {
+        core_llc_request += mon_data.llc_request;
+    }
+
+    llc_request_ratio = llc_request / core_llc_request;
+}
+#endif
+
+#ifdef MONITORING_SELF_MB
+double monitor::get_mb()
+{
+    return bytes_to_mb(m_monitor_backend->get_mb());
+}
+#endif
+
+#endif
+
 void monitor::parse_data_to_window(int index, const std::vector<double>& data, std::unordered_map<int, win_data>& win_data_map)
 {
     win_data_map[index].insert(data);

@@ -5,6 +5,7 @@
 #include <cpuid.h>
 #include <unistd.h>
 #include <cerrno>
+#include <numa.h>
 #include <sys/time.h>
 
 bool is_ht_enable()
@@ -204,4 +205,20 @@ double cpu_microsecond(void)
     clock_gettime(CLOCK_MONOTONIC, &ts);
     ms = (ts.tv_sec * 1000 + ((double)ts.tv_nsec) / 1000000);
     return ms;
+}
+
+uint32_t get_socket(int obj, mode m)
+{
+    uint32_t socket;
+    int core_id;
+
+    if(m == mode::PROCESSES) {
+        core_id = get_cpu_from_pid(obj);
+    } else {
+        core_id = obj;
+    }
+
+    socket = numa_node_of_cpu(core_id);
+
+    return socket;
 }

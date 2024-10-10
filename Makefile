@@ -33,6 +33,17 @@ ifeq ($(test), 1)
 	CXXFLAGS += -DTEST
 endif
 
+ifeq ($(slef_test_ipc), 1)
+	CXXFLAGS += -DTEST -DENABLE_SELF_MONITOR -DMONITORING_SELF_IPC
+endif
+
+ifeq ($(slef_test_llc), 1)
+	CXXFLAGS += -DTEST -DENABLE_SELF_MONITOR -DMONITORING_SELF_LLC
+endif
+
+ifeq ($(slef_test_mb), 1)
+	CXXFLAGS += -DTEST -DENABLE_SELF_MONITOR -DMONITORING_SELF_MB
+endif
 
 TARGET = PaLLOC
 

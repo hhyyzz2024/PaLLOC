@@ -143,4 +143,14 @@ struct experimental_data{
 };
 #endif
 
+static inline double bytes_to_kb(const double bytes)
+{
+    return bytes / 1024.0;
+}
+
+static inline double bytes_to_mb(const double bytes)
+{
+    return bytes / (1024.0 * 1024.0);
+}
+
 #endif

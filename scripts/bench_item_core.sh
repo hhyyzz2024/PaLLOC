@@ -11,11 +11,9 @@ interval=$5
 sudoPW=$6
 source $workload_define_file
 
-current_dir=$(pwd)
-
 core_num="${#cores[@]}"
 
-PROJ_DIR=${current_dir}/..
+PROJ_DIR=/home/huangyizhi/workspace/PaLLOC
 
 IPC_RESULTS_DIR=${PROJ_DIR}/results/${result_dir}/${core_num}/ipc/${conf_name}
 OVERHEAD_RESULTS_DIR=${PROJ_DIR}/results/${result_dir}/${core_num}/overhead/${conf_name}

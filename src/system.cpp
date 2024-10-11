@@ -148,7 +148,26 @@ void system::clean_up()
 	}
 	average_algorithm_overhead = system_algorithm_overhead / exp_data.algorithm_overhead_vec.size();
 
-	for(auto& obj_ipc_pair : exp_data.obj_ipc_table) {
+	std::vector<int> ordered_objs;
+		for(auto& obj_ipc_pair : exp_data.obj_ipc_table) {
+			ordered_objs.push_back(obj_ipc_pair.first);
+		}
+
+	std::sort(ordered_objs.begin(), ordered_objs.end());
+
+	for(auto obj : ordered_objs) {
+		const std::vector<monitor_data>& mon_datas = m_monitor->get_monitor_datas(obj);
+		for(const auto& mon_data : mon_datas) {
+			exp_data.obj_ipc_table[obj] += mon_data.ipc;
+		}
+
+		exp_data.obj_ipc_table[obj] /= mon_datas.size();
+
+		fout1 << obj << "," << exp_data.obj_ipc_table[obj] << std::endl;
+		fout2 << obj << " " << exp_data.obj_ipc_table[obj] << std::endl;
+	}
+
+/*	for(auto& obj_ipc_pair : exp_data.obj_ipc_table) {
 		int obj = obj_ipc_pair.first;
 
 		const std::vector<monitor_data>& mon_datas = m_monitor->get_monitor_datas(obj);
@@ -160,7 +179,7 @@ void system::clean_up()
 		
 		fout1 << obj << "," << obj_ipc_pair.second << std::endl;
 		fout2 << obj << " " << obj_ipc_pair.second << std::endl;
-	}
+	}*/
 
 	fout1.close();
 	fout2.close();

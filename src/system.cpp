@@ -253,8 +253,8 @@ system::system(int argc, char **argv)
 {
 	parse_argument(argc, argv);
 
-	int max_core_num = std::thread::hardware_concurrency();
-/*	flags = new uint64_t[max_core_num];
+/*	int max_core_num = std::thread::hardware_concurrency();
+	flags = new uint64_t[max_core_num];
     for(int core = 0; core < max_core_num; core++) {
         disable_prefetch(core, &flags[core]);
     }*/
@@ -268,7 +268,7 @@ system::system(int argc, char **argv)
 #else
 	system_core = 46;
 #endif
-	int allocation_interval = 10;
+	
     pid = getpid();
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);

@@ -14,7 +14,7 @@ ROOT_DIR=/home/huangyizhi/workspace/PaLLOC
 
 mixs=(0)
 workload_define_files=(workload_define24.conf)
-bench_name=bench_item.sh
+bench_name=bench_item_core.sh
 result_dir="pair_prefetch_mb"
 strategy=6
 period=100
